@@ -10,14 +10,14 @@ const isValid = function (value) {
 const createUser = async function (req, res) {
     try {
         let data = req.body
-          console.log(data)
-        const { title, name, phone, email, password ,address} = data
-    
+        console.log(data)
+        const { title, name, phone, email, password, address } = data
+
         if (Object.keys(data).length < 1) { return res.status(400).send({ msg: "Insert data :Bad request" }) }
 
-       // title validation
+        // title validation
         if (!isValid(title)) { return res.status(400).send({ status: false, msg: "title is required and it must be string" }) }
-          
+
         let title1 = /^(Mr|Mrs|Miss){0,3}$/.test(title.trim())
         if (!title1) return res.status(400).send({ status: false, msg: "enter valid title" })
 
@@ -30,7 +30,7 @@ const createUser = async function (req, res) {
         //phone validation
         if (!isValid(phone)) { return res.status(400).send({ status: false, msg: "phone number is required and it must be string" }) }
 
-        let mobile =  /^((\+91)?|91)?[6789][0-9]{9}$/.test(phone.trim())
+        let mobile = /^((\+91)?|91)?[6789][0-9]{9}$/.test(phone.trim())
         if (!mobile) return res.status(400).send({ status: false, msg: "enter valid phone number" })
         let findPhone = await userModel.find({ phone: phone })
         if (findPhone.length !== 0) return res.status(400).send({ status: false, msg: "Phone number is aleardy Exist" })
@@ -51,32 +51,32 @@ const createUser = async function (req, res) {
 
         //address validation
         // street validation
-        let street=address.street
-        if(data.hasOwnProperty("address")){
-        if (!isValid(street)) { return res.status(400).send({ status: false, msg: "street is required and it must be string" }) }
+        let street = address.street
+        if (data.hasOwnProperty("address")) {
+            if (!isValid(street)) { return res.status(400).send({ status: false, msg: "street is required and it must be string" }) }
 
-        let street1 = /\w*\s*|\w|\D/.test(street.trim())
-        if (!street1) return res.status(400).send({ status: false, msg: "enter valid street" })
-        
-        //city validation
-        let city=address.city
-        if (!isValid(city)) { return res.status(400).send({ status: false, msg: "city is required and it must be string" }) }
+            let street1 = /\w*\s*|\w|\D/.test(street.trim())
+            if (!street1) return res.status(400).send({ status: false, msg: "enter valid street" })
 
-        let city1 = /^[a-zA-Z]{2,20}$/.test(name.trim())
-        if (!city1) return res.status(400).send({ status: false, msg: "enter valid city name" })
+            //city validation
+            let city = address.city
+            if (!isValid(city)) { return res.status(400).send({ status: false, msg: "city is required and it must be string" }) }
 
-        //pincode validation
-        let pincode=address.pincode
-        if (!isValid(pincode)) { return res.status(400).send({ status: false, msg: "pincode is required and it must be string" }) }
+            let city1 = /^[a-zA-Z]{2,20}$/.test(name.trim())
+            if (!city1) return res.status(400).send({ status: false, msg: "enter valid city name" })
 
-        let pin = /^[1-9][0-9]{5}$/.test(pincode.trim())
-        if (!pin) return res.status(400).send({ status: false, msg: "enter valid pincode" })
+            //pincode validation
+            let pincode = address.pincode
+            if (!isValid(pincode)) { return res.status(400).send({ status: false, msg: "pincode is required and it must be string" }) }
+
+            let pin = /^[1-9][0-9]{5}$/.test(pincode.trim())
+            if (!pin) return res.status(400).send({ status: false, msg: "enter valid pincode" })
 
 
         }
 
         let saveUserData = await userModel.create(data)
-        res.status(201).send({status:true, data:saveUserData})
+        res.status(201).send({ status: true, data: saveUserData })
     }
     catch (err) {
         res.status(500).send({ status: false, msg: err.message })
@@ -94,22 +94,23 @@ const loginUser = async function (req, res) {
         let password = req.body.password
         if (!userName) return res.status(400).send({ status: false, msg: "user Name is required" });
         if (!password) return res.status(400).send({ status: false, msg: "password is required" });
-        const check = await userModel.findOne({email: userName,password: password});
+        const check = await userModel.findOne({ email: userName, password: password });
         if (!check) return res.status(400).send({ status: false, msg: "userName or password is wrong" });
         let token = JWT.sign(
             {
-                userId: check._id.toString()
+                userId: check._id.toString(),
+                iat: Math.floor(new Date() / 1000),
+                exp: Math.floor(new Date() / 1000) + 10 * 60 * 60
             },
             "book-management"
         );
         res.setHeader("x-api-key", token);
-        res.status(200).send({ status: true, data: token});
+        res.status(200).send({ status: true, data: token });
     }
     catch (err) {
         res.status(500).send({ status: false, error: err.message });
     }
 }
 
-module.exports={loginUser}
+module.exports = { loginUser, createUser }
 
-module.exports.createUser = createUser
