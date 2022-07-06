@@ -3,7 +3,6 @@
   "version": "1.0.0",
   "description": "TODO.",
   "main": "index.js",
-  "devDependencies": {},
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
@@ -16,5 +15,8 @@
   "bugs": {
     "url": "https://github.com/sagarbansal156/Project3-BookMangement/issues"
   },
-  "homepage": "https://github.com/sagarbansal156/Project3-BookMangement#readme"
+  "homepage": "https://github.com/sagarbansal156/Project3-BookMangement#readme",
+  "dependencies": {
+    "express": "^4.18.1"
+  }
 }
