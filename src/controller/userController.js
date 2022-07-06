@@ -4,7 +4,7 @@ const JWT = require("jsonwebtoken");
 const isValid = function (value) {
     if (!value || value === undefined) return false
     if (typeof value !== "string" || value.trim().length === 0) return false
-    return false
+    return true
 }
 
 
@@ -13,9 +13,10 @@ const createUser = async function (req, res) {
         let data = req.body
 
         const { title, name, phone, email, password ,address} = data
+    
         if (Object.keys(data).length < 1) { return res.status(400).send({ msg: "Insert data :Bad request" }) }
 
-        // title validation
+       // title validation
         if (!isValid(title)) { return res.status(400).send({ status: false, msg: "title is required and it must be string" }) }
 
         let title1 = /^(Mr|Mrs|Miss){0,3}$/.test(title.trim())
@@ -70,7 +71,7 @@ const createUser = async function (req, res) {
         let pincode=address.pincode
         if (!isValid(pincode)) { return res.status(400).send({ status: false, msg: "pincode is required and it must be string" }) }
 
-        let pin = /^[1-9][0-9]{5}$/.test(name.trim())
+        let pin = /^[1-9][0-9]{5}$/.test(pincode.trim())
         if (!pin) return res.status(400).send({ status: false, msg: "enter valid pincode" })
 
 
@@ -89,13 +90,13 @@ const createUser = async function (req, res) {
 
 
 
-const logInUser = async function (req, res) {
+const loginUser = async function (req, res) {
     try {
         let userName = req.body.email
         let password = req.body.password
         if (!userName) return res.status(400).send({ status: false, msg: "user Name is required" });
         if (!password) return res.status(400).send({ status: false, msg: "password is required" });
-        const check = await authorModel.findOne({email: userName,password: password});
+        const check = await userModel.findOne({email: userName,password: password});
         if (!check) return res.status(400).send({ status: false, msg: "userName or password is wrong" });
         let token = JWT.sign(
             {
@@ -104,13 +105,13 @@ const logInUser = async function (req, res) {
             "book-management"
         );
         res.setHeader("x-api-key", token);
-        res.status(200).send({ status: false, data: token});
+        res.status(200).send({ status: true, data: token});
     }
     catch (err) {
         res.status(500).send({ status: false, error: err.message });
     }
 }
 
-module.exports={logInUser}
+module.exports={loginUser}
 
 module.exports.createUser = createUser
