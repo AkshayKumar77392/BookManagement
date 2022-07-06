@@ -4,20 +4,19 @@ const JWT = require("jsonwebtoken");
 const isValid = function (value) {
     if (!value || value === undefined) return false
     if (typeof value !== "string" || value.trim().length === 0) return false
-    return false
+    return true
 }
-
 
 const createUser = async function (req, res) {
     try {
         let data = req.body
-
+          console.log(data)
         const { title, name, phone, email, password ,address} = data
         if (Object.keys(data).length < 1) { return res.status(400).send({ msg: "Insert data :Bad request" }) }
-
+           console.log(title)
         // title validation
         if (!isValid(title)) { return res.status(400).send({ status: false, msg: "title is required and it must be string" }) }
-
+          
         let title1 = /^(Mr|Mrs|Miss){0,3}$/.test(title.trim())
         if (!title1) return res.status(400).send({ status: false, msg: "enter valid title" })
 
