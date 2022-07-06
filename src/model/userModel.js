@@ -14,7 +14,7 @@ const userSchema = new mongoose.Schema(
             trim: true
         },
         phone: {
-            type: string,
+            type: String,
             required: true,
             unique: true
         },
@@ -32,9 +32,10 @@ const userSchema = new mongoose.Schema(
             maxLen: 15
         },
         address: {
-            street: { string },
-            city: { string },
-            pincode: { string }
+            type:Object,
+            street: { String },
+            city: { String },
+            pincode: { String }
         },
     },
 
