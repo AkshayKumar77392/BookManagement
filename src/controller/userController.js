@@ -32,7 +32,6 @@ const createUser = async function (req, res) {
         if (!isValid(phone)) { return res.status(400).send({ status: false, msg: "phone number is required and it must be string" }) }
 
         let mobile =  /^((\+91)?|91)?[6789][0-9]{9}$/.test(phone.trim())
-        console.log(mobile)
         if (!mobile) return res.status(400).send({ status: false, msg: "enter valid phone number" })
         let findPhone = await userModel.find({ phone: phone })
         if (findPhone.length !== 0) return res.status(400).send({ status: false, msg: "Phone number is aleardy Exist" })
