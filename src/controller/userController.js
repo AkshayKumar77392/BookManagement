@@ -10,7 +10,6 @@ const isValid = function (value) {
 const createUser = async function (req, res) {
     try {
         let data = req.body
-        console.log(data)
         const { title, name, phone, email, password, address } = data
 
         if (Object.keys(data).length < 1) { return res.status(400).send({ msg: "Insert data :Bad request" }) }
@@ -112,5 +111,5 @@ const loginUser = async function (req, res) {
     }
 }
 
-module.exports = { loginUser, createUser }
+module.exports = { loginUser, createUser, isValid}
 

@@ -50,7 +50,6 @@ const bookSchema = new mongoose.Schema(
             required: true
         },//, format("YYYY-MM-DD")
     },
-
     { timestamps: true },
 
 );
