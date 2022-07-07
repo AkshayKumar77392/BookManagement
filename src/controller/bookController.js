@@ -32,11 +32,7 @@ const createBook = async function (req, res) {
         const validate = await userController.findById(details.userId);
         if (!validate) return res.status(400).send({ status: false, msg: "You have entered a invalid user_Id" });
 
-        const data = await bookController.create(details)
-        res.status(200).send({ status: true, data: data })
-        let {title, excerpt, userId, ISBN, category,subcategory, reviews,releasedAt} = details;
-
-        //validation for empty body
+                //validation for empty body
         if (Object.keys(details).length < 1) { return res.status(400).send({ msg: "Insert data :Bad request" }) }
 
         //title validation 
