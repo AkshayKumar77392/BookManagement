@@ -53,18 +53,23 @@ const createBook = async function (req, res) {
 
 
         //subcategory validation 
-        if (!isValid(subcategory)) { return res.status(400).send({ status: false, msg: "subcategory is required and it must be string" }) }
+        if (subcategory!==undefined && subcategory==="string") {
+         let bookSubcategory= /^[a-zA-Z ]{2,50}/.test(subcategory.trim())
+         if (!bookSubcategory) return res.status(400).send({ status: false, msg: "enter valid subcategory " })
+        } 
+        else if (typeof subcategory !== "string" || subcategory.trim().length === 0) {
+            if (Array.isArray(subcategory)) {
+                for (let i = 0; i < subcategory.length; i++) {
+                    if (typeof subcategory[i] !=='string') return res.status(400).send({ status: false, msg: " subcategory should be string" })
+                    let bookSubcategory= /^[a-zA-Z ]{2,50}/.test(subcategory[i].trim())
+                    if (!bookSubcategory) return res.status(400).send({ status: false, msg: "enter valid subcategory " })
 
-        let bookSubcategory = /^[a-zA-Z ]{2,30}/.test(subcategory.trim())
-        if (!bookSubcategory) return res.status(400).send({ status: false, msg: "enter valid subcategory " })
+                }
 
+            } else { return res.status(400).send({ status: false, msg: "subcategory should contain string values" }) }
+        }
 
-    //    //releasedAt validation
-    //     details.releasedAt=releasedAt.toString()
-    //     if (!releasedAt || releasedAt===undefined) { return res.status(400).send({ status: false, msg: "releasedAt is required" }) }
-    //      if (typeof releasedAt !== "string" || value.trim().length === 0) { return res.status(400).send({ status: false, msg: "releasedAt should be of type date" }) }
-        
-       
+    
         const data = await booksModel.create(details)
 
         res.status(200).send({ status: true, data: data })
@@ -146,4 +151,42 @@ const updateBook = async function (req, res) {
     }
 };
 
-module.exports = { createBook, updateBook, getBook }
+
+//get by id
+const getBooks = async function (req, res) {
+    try {
+        let bookId = req.params.bookId;
+        
+        let saveData = await booksModel.findById({_id:bookId,isDeleted:false})
+        if(!saveData){return res.status(404).send({status:false,msg:"book not found"})}
+       
+        res.status(200).send({ststus:false,data:saveData})
+    }catch (err) {
+        res.status(500).send({ msg: 'Error', error: err.message });
+    }
+};
+
+
+
+
+//delete book
+const deleteBook = async function (req, res) {
+    try {
+        let bookId = req.params.bookId
+        let id = await booksModel.findById({_id:bookId,isDeleted:false})
+        if (id) {
+            let updateBook = await booksModel.findOneAndUpdate({ _id: bookId }, { isDeleted: true }, { new: true })
+            updateBook.deletedAt=Date.now()
+            res.status(200).send({ status: true,msg:"book deleted now" ,deletedAt:updateBook.deletedAt})
+        }
+        else { res.status(404).send({ msg: "book not found" }) }
+    }
+    catch (err) {
+        console.log("This is the error :", err.message)
+        res.status(500).send({ msg: "Error", error: err.message })
+    }
+
+}
+
+module.exports = { createBook, updateBook,getBook, getBooks,deleteBook }
+
