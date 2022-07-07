@@ -111,5 +111,9 @@ const loginUser = async function (req, res) {
     }
 }
 
+<<<<<<< HEAD
 module.exports = { loginUser, createUser, isValid}
+=======
+module.exports = { loginUser, createUser, isValid }
+>>>>>>> 7e1fb13e036a6adcb7d1a475d798bc8f6621aa5c
 
