@@ -53,8 +53,9 @@ const createBook = async function(req, res){
 
 
     //    //releasedAt validation
+    //     details.releasedAt=releasedAt.toString()
     //     if (!releasedAt || releasedAt===undefined) { return res.status(400).send({ status: false, msg: "releasedAt is required" }) }
-    //     if (typeof releasedAt !== "Date" || value.trim().length === 0) { return res.status(400).send({ status: false, msg: "releasedAt should be of type date" }) }
+    //      if (typeof releasedAt !== "string" || value.trim().length === 0) { return res.status(400).send({ status: false, msg: "releasedAt should be of type date" }) }
         
        
         const data = await booksModel.create(details)
