@@ -85,10 +85,10 @@ const createBook = async function (req, res) {
 const updateBook = async function (req, res) {
     try {
         let id = req.params.bookId;
-        console.log(id)
+        // console.log(id)
         let data = req.body;
         if (Object.keys(data).length < 1) { return res.status(400).send({ msg: "Insert data you want to update" }) }
-        console.log(data)
+        // console.log(data)
         let book = await booksModel.findOne({ _id: id, isDeleted: false });
         if (book === null) {
             return res.status(404).send({ status: false, msg: 'No such blog found' });
@@ -124,12 +124,41 @@ const updateBook = async function (req, res) {
     }
 };
 
+const getBook = async function(req, res){
+    try{
+        let q = req.query;
+        let filter = {
+            isDeleted: false,
+            ...q
+        };
+        // if(q.userId){
+        //     const validate = await userController.findById(q.userId);
+        //     if(!validate) return res.status(404).send({status:false, msg: "userId is not valid"});
+        // }
+
+        const data = await booksModel.find(filter).select({_id:1,title:1,excerpt:1,userId:1,category:1,releasedAt:1,reviews:1});
+        if(data.length == 0) return res.status(404).send({status:false, msg: "No book is found"});
+
+        data.sort(function(a, b) {
+            var textA = a.title.toUpperCase();
+            var textB = b.title.toUpperCase();
+            return (textA < textB) ? -1 : (textA > textB) ? 1 : 0;
+
+        });
+        
+        
+
+        res.status(201).send({status: true, data: data})
+    }catch(err){
+        res.status(500).send({status: false, msg: err.message});
+    }
+}
 
 
 
 
 //get by id
-const getBook = async function (req, res) {
+const getBooks = async function (req, res) {
     try {
         let bookId = req.params.bookId;
         
@@ -164,4 +193,5 @@ const deleteBook = async function (req, res) {
 
 }
 
-module.exports = { createBook, updateBook,getBook,deleteBook }
+module.exports = { createBook, updateBook,getBook, getBooks,deleteBook }
+
