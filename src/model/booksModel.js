@@ -17,7 +17,6 @@ const bookSchema = new mongoose.Schema(
             required: true,
             ref: "user"
         },
-
         ISBN: {
             type: String,
             required: true,

@@ -1,42 +1,85 @@
 const booksModel = require("../model/booksModel");
-const userModel = require ("../model/userModel");
+const userModel = require("../model/userModel");
 const userController = require("../model/userModel");
 const bookController = require("../model/booksModel");
-const validator = require("validator");
 
-const createBook = async function(req, res){
-    try{
+
+const createBook = async function (req, res) {
+    try {
         const details = req.body;
-        let {title, excerpt, userId, ISBN, category,subcategory,releasedAt} = details;
+        let { title, excerpt, userId, ISBN, category, subcategory, releasedAt } = details;
 
-        if(!title) return res.status(400).send({status: false, msg: "Title of the book is required"});
-        if(!validator.isLength(title, {min: 5, max: 30})){return res.status(400).send({status: false, msg: 'The length of the title should contain minium 5 and maximum 30 charactors!'})};
-        
-        if(!excerpt) return res.status(400).send({status: false, msg: "excerpt of the book is required"});
-        if(!validator.isLength(excerpt, {min: 5})){return res.status(400).send({status: false, msg: 'The length of excerpt should have atleast 5 letters.'})};
-        
-        if(!userId) return res.status(400).send({status: false, msg: "user_Id of the book is required"});
-        let userDetails = await userModel.findOne({_id: userId});
-        if(!userDetails){res.status(400).send({status: false, msg: "The user with the given user id doesn't exist"})};
+        if (!title) return res.status(400).send({ status: false, msg: "Title of the book is required" });
 
-        if(!ISBN) return res.status(400).send({status: false, msg: "ISBN of the book is required"});
-        
-        if(!category) return res.status(400).send({status: false, msg: "Category of the book is required"});
+        if (!excerpt) return res.status(400).send({ status: false, msg: "excerpt of the book is required" });
 
-        if(!subcategory) return res.status(400).send({status: false, msg: "subCategory of the book is required"});
+        if (!userId) return res.status(400).send({ status: false, msg: "user_Id of the book is required" });
+        let userDetails = await userModel.findOne({ _id: userId });
+        if (!userDetails) { res.status(400).send({ status: false, msg: "The user with the given user id doesn't exist" }) };
 
-        if(!releasedAt) return res.status(400).send({status: false, msg: "released at the book is required"});
+        if (!ISBN) return res.status(400).send({ status: false, msg: "ISBN of the book is required" });
+
+        if (!category) return res.status(400).send({ status: false, msg: "Category of the book is required" });
+
+        if (!subcategory) return res.status(400).send({ status: false, msg: "subCategory of the book is required" });
+
+        if (!releasedAt) return res.status(400).send({ status: false, msg: "released at the book is required" });
 
         const validate = await userController.findById(details.userId);
-        if(!validate) return res.status(400).send({status: false, msg: "You have entered a invalid user_Id"});
+        if (!validate) return res.status(400).send({ status: false, msg: "You have entered a invalid user_Id" });
 
         const data = await bookController.create(details)
-        res.status(200).send({status: true, data: data})
+        res.status(200).send({ status: true, data: data })
     }
-    catch(err){
-        res.status(500).send({status: false, msg: err.message});
+    catch (err) {
+        res.status(500).send({ status: false, msg: err.message });
     }
 }
 
-module.exports = { createBook }
 
+
+const updateBook = async function (req, res) {
+    try {
+        let id = req.params.bookId;
+        console.log(id)
+        let data = req.body;
+        if (Object.keys(data).length < 1) { return res.status(400).send({ msg: "Insert data you want to update" }) }
+        console.log(data)
+        let book = await booksModel.findOne({ _id: id, isDeleted: false });
+        if (book === null) {
+            return res.status(404).send({ status: false, msg: 'No such blog found' });
+        }
+        let findTitle = await booksModel.find({ title: data.title })
+        if (findTitle.length !== 0) return res.status(400).send({ status: false, msg: "Title  is already used, Please use a new title" })
+
+        let findExcerpt = await booksModel.find({ excerpt: data.excerpt })
+        if (findExcerpt.length !== 0) return res.status(400).send({ status: false, msg: "excerpt  is already used, please use a new excerpt" })
+
+        //let givenISBN = /^(?=(?:\D*\d){10}(?:(?:\D*\d){3})?$)[\d-]+$/.test(data.ISBN.trim())
+        //if (!givenISBN) return res.status(400).send({ status: false, msg: "enter valid ISBN" })
+
+        /*let findISBN = await userModel.find({ ISBN: data.ISBN })
+        if (findISBN.length !== 0) return res.status(400).send({ status: false, msg: "ISBN is already used" })*/
+        if (data.title) {
+            book.title = data.title
+        };
+        if (data.releasedAt) {
+            book.releasedAt = data.releasedAt
+            console.log(data.releasedAt)
+            console.log(book.releasedAt )
+        };
+        if (data.ISBN) {
+            book.ISBN = data.ISBN
+        };
+        let updateData = await booksModel.findByIdAndUpdate({ _id: id }, book, {
+            new: true,
+        });
+        res.status(200).send({ status: true, msg: updateData });
+    } catch (err) {
+        res.status(500).send({ msg: 'Error', error: err.message });
+    }
+};
+
+
+
+module.exports = { createBook, updateBook }
