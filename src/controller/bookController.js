@@ -2,7 +2,6 @@ const booksModel = require("../model/booksModel");
 const userModel = require("../model/userModel");
 const userController = require("../model/userModel");
 const bookController = require("../model/booksModel");
-const userModel = require ("../model/userModel");
 const {isValid}= require("../controller/userController");
 const moment = require("moment");
 const mongoose = require("mongoose");
@@ -13,26 +12,7 @@ const createBook = async function (req, res) {
         const details = req.body;
         let { title, excerpt, userId, ISBN, category, subcategory, releasedAt } = details;
 
-        if (!title) return res.status(400).send({ status: false, msg: "Title of the book is required" });
-
-        if (!excerpt) return res.status(400).send({ status: false, msg: "excerpt of the book is required" });
-
-        if (!userId) return res.status(400).send({ status: false, msg: "user_Id of the book is required" });
-        let userDetails = await userModel.findOne({ _id: userId });
-        if (!userDetails) { res.status(400).send({ status: false, msg: "The user with the given user id doesn't exist" }) };
-
-        if (!ISBN) return res.status(400).send({ status: false, msg: "ISBN of the book is required" });
-
-        if (!category) return res.status(400).send({ status: false, msg: "Category of the book is required" });
-
-        if (!subcategory) return res.status(400).send({ status: false, msg: "subCategory of the book is required" });
-
-        if (!releasedAt) return res.status(400).send({ status: false, msg: "released at the book is required" });
-
-        const validate = await userController.findById(details.userId);
-        if (!validate) return res.status(400).send({ status: false, msg: "You have entered a invalid user_Id" });
-
-                //validation for empty body
+        //validation for empty body
         if (Object.keys(details).length < 1) { return res.status(400).send({ msg: "Insert data :Bad request" }) }
 
         //title validation 
@@ -40,6 +20,8 @@ const createBook = async function (req, res) {
         
         let bookTitle = /\w*\s*|\w|\D/.test(title.trim())
         if (!bookTitle) return res.status(400).send({ status: false, msg: "enter valid title" })
+        let findTitle = await booksModel.find({ title:title })
+        if (findTitle.length !== 0) return res.status(400).send({ status: false, msg: "Title  is already used, Please use a new title" })
        
 
         //excerpt validation
@@ -53,13 +35,16 @@ const createBook = async function (req, res) {
         if (!userId || userId===undefined) return res.status(400).send({ status: false, msg: "userId is required" })
         var isValidId = mongoose.Types.ObjectId.isValid(userId)
         if (!isValidId) return res.status(400).send({ status: false, msg: "Enter valid user id" })
+        let userDetails = await userModel.findOne({ _id: userId });
+        if (!userDetails) { res.status(400).send({ status: false, msg: "The user with the given user id doesn't exist" }) };
 
         //ISBN validation
         if (!isValid(ISBN)) { return res.status(400).send({ status: false, msg: "ISBN is required and it must be string" }) }
         
         let bookISBN= /^(?=(?:\D*\d){10}(?:(?:\D*\d){3})?$)[\d-]+$/.test(ISBN.trim())
         if (!bookISBN) return res.status(400).send({ status: false, msg: "enter valid ISBN" })
-
+        let findISBN = await booksModel.find({ ISBN:ISBN })
+        if (findISBN.length !== 0) return res.status(400).send({ status: false, msg: "ISBN  is already used, Please use a new title" })
 
         //category validation
         if (!isValid(category)) { return res.status(400).send({ status: false, msg: "category is required and it must be string" }) }
