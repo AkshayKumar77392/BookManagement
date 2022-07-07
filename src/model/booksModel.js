@@ -17,7 +17,6 @@ const bookSchema = new mongoose.Schema(
             required: true,
             ref: "user"
         },
-
         ISBN: {
             type: String,
             required: true,
@@ -50,7 +49,6 @@ const bookSchema = new mongoose.Schema(
             required: true
         },//, format("YYYY-MM-DD")
     },
-
     { timestamps: true },
 
 );
