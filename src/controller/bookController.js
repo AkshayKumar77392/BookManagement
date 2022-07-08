@@ -46,21 +46,21 @@ const createBook = async function (req, res) {
         //category validation
         if (!isValid(category)) { return res.status(400).send({ status: false, msg: "category is required and it must be string" }) }
 
-        let bookCategory = /^[a-zA-Z ]{2,30}/.test(category.trim())
+        let bookCategory = /^[a-zA-Z\s]*$/.test(category.trim())
         if (!bookCategory) return res.status(400).send({ status: false, msg: "enter valid category " })
 
 
         //subcategory validation 
-        if (subcategory !== undefined && subcategory === "string") {
-            let bookSubcategory = /^[a-zA-Z ]{2,50}/.test(subcategory.trim())
-            if (!bookSubcategory) return res.status(400).send({ status: false, msg: "enter valid subcategory " })
+        if (subcategory !== undefined && typeof subcategory === "string") {
+            let bookSubcategory = /^[a-zA-Z\s]*$/.test(subcategory.trim())
+            if (!bookSubcategory) return res.status(400).send({ status: false, msg: "enter valid subcategory1 " })
         }
         else if (typeof subcategory !== "string" || subcategory.trim().length === 0) {
             if (Array.isArray(subcategory)) {
                 for (let i = 0; i < subcategory.length; i++) {
                     if (typeof subcategory[i] !== 'string') return res.status(400).send({ status: false, msg: " subcategory should be string" })
-                    let bookSubcategory = /^[a-zA-Z ]{2,50}/.test(subcategory[i].trim())
-                    if (!bookSubcategory) return res.status(400).send({ status: false, msg: "enter valid subcategory " })
+                    let bookSubcategory = /^[a-zA-Z\s]*$/.test(subcategory[i].trim())
+                    if (!bookSubcategory) return res.status(400).send({ status: false, msg: "enter valid subcategory2" })
 
                 }
 
