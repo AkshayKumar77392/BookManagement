@@ -127,7 +127,6 @@ const updateBook = async function (req, res) {
         if (!givenISBN) return res.status(400).send({ status: false, msg: "enter valid ISBN" })
 
         let findISBN = await booksModel.find({ ISBN: data.ISBN })
-        console.log(findISBN)
         if (findISBN.length != 0) return res.status(400).send({ status: false, msg: "ISBN is already used" })
         if (data.title) {
             book.title = data.title
