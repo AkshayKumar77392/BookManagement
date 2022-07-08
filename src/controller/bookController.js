@@ -70,6 +70,12 @@ const createBook = async function (req, res) {
             } else { return res.status(400).send({ status: false, msg: "subcategory should contain string values" }) }
         }
 
+
+        //releasedAt validation
+        if (releasedAt === undefined || releasedAt.trim().length === 0) return res.status(400).send({ status: false, msg: "date is required" })
+         bookReleasedAt =/^\d{4}[\-\/\s]?((((0[13578])|(1[02]))[\-\/\s]?(([0-2][0-9])|(3[01])))|(((0[469])|(11))[\-\/\s]?(([0-2][0-9])|(30)))|(02[\-\/\s]?[0-2][0-9]))$/.test(releasedAt.trim())
+        if (!bookReleasedAt) return res.status(400).send({ status: false, msg: "enter valid date " })
+
     
         const data = await booksModel.create(details)
 
@@ -148,7 +154,7 @@ const getBook = async function(req, res){
         
         
 
-        res.status(201).send({status: true, data: data})
+        res.status(200).send({status: true, data: data})
     }catch(err){
         res.status(500).send({status: false, msg: err.message});
     }
@@ -165,7 +171,7 @@ const getBooks = async function (req, res) {
         let saveData = await booksModel.findById({_id:bookId,isDeleted:false})
         if(!saveData){return res.status(404).send({status:false,msg:"book not found"})}
        
-        res.status(200).send({ststus:false,data:saveData})
+        res.status(200).send({ststus:true,data:saveData})
     }catch (err) {
         res.status(500).send({ msg: 'Error', error: err.message });
     }
