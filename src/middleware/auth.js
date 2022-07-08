@@ -1,20 +1,24 @@
 const jwt = require("jsonwebtoken")
 const bookModel = require("../model/booksModel")
 let decodedToken;
-const authenticate = function (req, res, next) {
-    try {
-        let token = req.headers["x-api-key"]
-        if (!token) return res.status(400).send({ status: false, msg: "token must be present" })
-
-        decodedToken = jwt.verify(token, "book-management")
-        if (!decodedToken)
-            return res.status(401).send({ status: false, msg: "token is invalid" })
-        next()
-    } catch (error) {
-        res.status(500).send({ msg: error.message })
-
+    const authenticate = function (req, res, next) {
+        try {
+            let token = req.headers["x-api-key"];
+            if (!token) return res.status(400).send({ status: false, msg: "token must be present" });
+             decodedToken = jwt.verify(token, "book-management", 
+            
+            function(err){
+                if(err)
+                return res.status(401).send({status:false,message:"Token is NOT Valid"})
+    
+                next()
+            } );
+            //if (!decodedToken) return res.status(400).send({ status: false, msg: "token is invalid" });
+        } catch (error) {
+            res.status(500).send({ msg: error.message })
+        }
     }
-}
+    
 
 const authorise = async function (req, res, next) {
     try {

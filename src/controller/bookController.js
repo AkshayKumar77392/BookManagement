@@ -68,6 +68,12 @@ const createBook = async function (req, res) {
         }
 
 
+        //releasedAt validation
+        if (releasedAt === undefined || releasedAt.trim().length === 0) return res.status(400).send({ status: false, msg: "date is required" })
+         bookReleasedAt =/^\d{4}[\-\/\s]?((((0[13578])|(1[02]))[\-\/\s]?(([0-2][0-9])|(3[01])))|(((0[469])|(11))[\-\/\s]?(([0-2][0-9])|(30)))|(02[\-\/\s]?[0-2][0-9]))$/.test(releasedAt.trim())
+        if (!bookReleasedAt) return res.status(400).send({ status: false, msg: "enter valid date " })
+
+    
         const data = await booksModel.create(details)
 
         res.status(200).send({ status: true, data: data })
@@ -120,7 +126,6 @@ const updateBook = async function (req, res) {
         let findTitle = await booksModel.find({ title: data.title })
         if (findTitle.length !== 0) return res.status(400).send({ status: false, msg: "Title  is already used, Please use a new title" })
 
-        
         let givenISBN = /^(?=(?:\D*\d){10}(?:(?:\D*\d){3})?$)[\d-]+$/.test(data.ISBN.trim())
         if (!givenISBN) return res.status(400).send({ status: false, msg: "enter valid ISBN" })
 
@@ -146,16 +151,20 @@ const updateBook = async function (req, res) {
 };
 
 
+
+
+
+
 //get by id
 const getBooks = async function (req, res) {
     try {
         let bookId = req.params.bookId;
-
-        let saveData = await booksModel.findById({ _id: bookId, isDeleted: false })
-        if (!saveData) { return res.status(404).send({ status: false, msg: "book not found" }) }
-
-        res.status(200).send({ ststus: false, data: saveData })
-    } catch (err) {
+        
+        let saveData = await booksModel.findById({_id:bookId,isDeleted:false})
+        if(!saveData){return res.status(404).send({status:false,msg:"book not found"})}
+       
+        res.status(200).send({ststus:true,data:saveData})
+    }catch (err) {
         res.status(500).send({ msg: 'Error', error: err.message });
     }
 };
