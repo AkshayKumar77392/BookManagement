@@ -4,11 +4,11 @@ const reviewSchema = new mongoose.Schema(
     {
         bookId: {
             type: objectId,
-            required: true,
+            //required: true,
             ref: "book"
         },
         reviewedBy: {
-            type: string,
+            type: String,
             required: true,
             default: 'Guest',
             value: { String }
@@ -21,7 +21,7 @@ const reviewSchema = new mongoose.Schema(
             required: true
         },
         review: { type: String },
-        isDeleted: { type: boolean, default: false },
+        isDeleted: { type: Boolean, default: false },
     }
 );
 

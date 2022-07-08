@@ -136,6 +136,7 @@ const updateBook = async function (req, res) {
         if (data.ISBN) {
             book.ISBN = data.ISBN
         };
+        
         let updateData = await booksModel.findByIdAndUpdate({ _id: id }, book, {
             new: true,
         });
