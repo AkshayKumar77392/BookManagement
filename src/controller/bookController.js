@@ -120,9 +120,7 @@ const updateBook = async function (req, res) {
         let findTitle = await booksModel.find({ title: data.title })
         if (findTitle.length !== 0) return res.status(400).send({ status: false, msg: "Title  is already used, Please use a new title" })
 
-        let findExcerpt = await booksModel.find({ excerpt: data.excerpt })
-        if (findExcerpt.length !== 0) return res.status(400).send({ status: false, msg: "excerpt  is already used, please use a new excerpt" })
-
+        
         let givenISBN = /^(?=(?:\D*\d){10}(?:(?:\D*\d){3})?$)[\d-]+$/.test(data.ISBN.trim())
         if (!givenISBN) return res.status(400).send({ status: false, msg: "enter valid ISBN" })
 
@@ -137,6 +135,7 @@ const updateBook = async function (req, res) {
         if (data.ISBN) {
             book.ISBN = data.ISBN
         };
+        
         let updateData = await booksModel.findByIdAndUpdate({ _id: id }, book, {
             new: true,
         });
