@@ -89,11 +89,7 @@ const getBook = async function (req, res) {
             isDeleted: false,
             ...q
         };
-        // if(q.userId){
-        //     const validate = await userController.findById(q.userId);
-        //     if(!validate) return res.status(404).send({status:false, msg: "userId is not valid"});
-        // }
-
+        
         const data = await booksModel.find(filter).select({ _id: 1, title: 1, excerpt: 1, userId: 1, category: 1, releasedAt: 1, reviews: 1 });
         if (data.length == 0) return res.status(404).send({ status: false, msg: "No book is found" });
 
