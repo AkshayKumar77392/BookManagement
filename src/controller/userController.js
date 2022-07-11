@@ -2,8 +2,8 @@ const userModel = require('../model/userModel')
 const JWT = require("jsonwebtoken");
 
 const isValid = function (value) {
-    if (!value || value === undefined) return false
-    if (typeof value !== "string" || value.trim().length === 0) return false
+    if (typeof value === "undefined" || !value ) return false
+    if (typeof value === "string" && value.trim().length === 0) return false
     return true
 }
 

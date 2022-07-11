@@ -9,7 +9,9 @@ const createReview = async function (req, res) {
         const details = req.body;
         const bookId = req.params.bookId;
 
-        if (!bookId || bookId === undefined) return res.status(400).send({ status: false, msg: "bookId is required" })
+        if (Object.keys(details).length < 1) { return res.status(400).send({ msg: "Insert data :Bad request" }) }
+
+        if (!bookId) return res.status(400).send({ status: false, msg: "bookId is required" })
 
         var isValidId = mongoose.Types.ObjectId.isValid(bookId)
         if (!isValidId) return res.status(400).send({ status: false, msg: "Enter valid user id" })
@@ -19,17 +21,17 @@ const createReview = async function (req, res) {
         let { reviewedBy, reviewedAt, rating, reviews } = details;
 
         //validation for empty body
-        if (Object.keys(details).length < 1) { return res.status(400).send({ msg: "Insert data :Bad request" }) }
+        // if (Object.keys(details).length < 1) { return res.status(400).send({ msg: "Insert data :Bad request" }) }
 
 
 
         //reviewedBy validation
-        if(reviewedBy){
-        if (!isValid(reviewedBy)) { return res.status(400).send({ status: false, msg: "Reviewers name is required and it must be string" }) }
+      if(reviewedBy)
+        if (reviewedAt === undefined || reviewedAt.trim().length === 0){ return res.status(400).send({ status: false, msg: "Reviewers name is required and it must be string" }) }
 
         let name = /^[a-zA-Z]{2,20}$/.test(reviewedBy.trim())
         if (!name) return res.status(400).send({ status: false, msg: "enter valid name" })
-        }
+        
 
         //reviewedAt validation
         if (reviewedAt === undefined || reviewedAt.trim().length === 0) return res.status(400).send({ status: false, msg: "date is required" })
@@ -147,7 +149,7 @@ const deleteReview = async function (req, res) {
     try {
         const bookId = req.params.bookId;
         const reviewId = req.params.reviewId;
-        if (!bookId || bookId === undefined) return res.status(400).send({ status: false, msg: "bookId is required" })
+        if (!bookId) return res.status(400).send({ status: false, msg: "bookId is required" })
 
         var isValidId = mongoose.Types.ObjectId.isValid(bookId)
         if (!isValidId) return res.status(400).send({ status: false, msg: "Enter valid book id" })
@@ -157,7 +159,7 @@ const deleteReview = async function (req, res) {
             return res.status(404).send({ status: false, msg: 'No such book found with the given bookId' });
         }
 
-        if (!reviewId || reviewId === undefined) return res.status(400).send({ status: false, msg: "reviewId is required" })
+        if (!reviewId) return res.status(400).send({ status: false, msg: "reviewId is required" })
 
         var isValidId = mongoose.Types.ObjectId.isValid(reviewId)
         if (!isValidId) return res.status(400).send({ status: false, msg: "Enter valid review id" })
@@ -170,13 +172,11 @@ const deleteReview = async function (req, res) {
         );
         if (book.reviews >= 1) {
             book.reviews = book.reviews - 1;
+            await booksModel.findByIdAndUpdate({ _id: bookId }, { reviews: book.reviews })
+            res.status(200).send({ status: true, message: "review is deleted sucessfully" })
         }
-        else {
-            book.reviews = book.reviews
-        }
-        res.status(200).send({ status: true, message: "review is deleted sucessfully" })
-    }
-    catch (err) {
+
+        } catch (err) {
         res.status(500).send({ status: false, msg: err.message });
     }
 }
