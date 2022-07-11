@@ -3,6 +3,7 @@ const userModel = require("../model/userModel");
 const { isValid } = require("../controller/userController");
 const moment = require("moment");
 const mongoose = require("mongoose");
+const jwt = require('jsonwebtoken')
 
 
 const createBook = async function (req, res) {
@@ -34,6 +35,14 @@ const createBook = async function (req, res) {
         if (!isValidId) return res.status(400).send({ status: false, msg: "Enter valid user id" })
         let userDetails = await userModel.findOne({ _id: userId });
         if (!userDetails) { res.status(400).send({ status: false, msg: "The user with the given user id doesn't exist" }) };
+
+        let token = req.headers["x-api-key"];
+        if (!token) token = req.headers["x-api-key"];
+
+        let decodedToken = jwt.verify(token, "book-management")
+        let userLoggedIn = decodedToken.userId
+        if (userId != userLoggedIn) { res.status(403).send({ status: false, msg: "enter your own id" }) };
+
 
         //ISBN validation
         if (!isValid(ISBN)) { return res.status(400).send({ status: false, msg: "ISBN is required and it must be string" }) }
@@ -70,7 +79,7 @@ const createBook = async function (req, res) {
 
         //releasedAt validation
         if (releasedAt === undefined || releasedAt.trim().length === 0) return res.status(400).send({ status: false, msg: "date is required" })
-        bookReleasedAt =/^\d{4}[\-\/\s]?((((0[13578])|(1[02]))[\-\/\s]?(([0-2][0-9])|(3[01])))|(((0[469])|(11))[\-\/\s]?(([0-2][0-9])|(30)))|(02[\-\/\s]?[0-2][0-9]))$/.test(releasedAt.trim())
+        bookReleasedAt = /^\d{4}[\-\/\s]?((((0[13578])|(1[02]))[\-\/\s]?(([0-2][0-9])|(3[01])))|(((0[469])|(11))[\-\/\s]?(([0-2][0-9])|(30)))|(02[\-\/\s]?[0-2][0-9]))$/.test(releasedAt.trim())
         if (!bookReleasedAt) return res.status(400).send({ status: false, msg: "enter valid date " })
 
 
@@ -84,26 +93,57 @@ const createBook = async function (req, res) {
 }
 const getBook = async function (req, res) {
     try {
-        let q = req.query;
-        let filter = {
-            isDeleted: false,
-            ...q
-        };
-        
-        const data = await booksModel.find(filter).select({ _id: 1, title: 1, excerpt: 1, userId: 1, category: 1, releasedAt: 1, reviews: 1 });
-        if (data.length == 0) return res.status(404).send({ status: false, msg: "No book is found" });
+        // let q = req.query;
+        // let filter = {
+        //     isDeleted: false,
+        //     ...q
+        // };
 
-        data.sort(function (a, b) {
-            var textA = a.title.toUpperCase();
-            var textB = b.title.toUpperCase();
-            return (textA < textB) ? -1 : (textA > textB) ? 1 : 0;
+        // const data = await booksModel.find(filter).select({ _id: 1, title: 1, excerpt: 1, userId: 1, category: 1, releasedAt: 1, reviews: 1 });
+        // if (data.length == 0) return res.status(404).send({ status: false, msg: "No book is found" });
 
-        });
+        // data.sort(function (a, b) {
+        //     var textA = a.title.toUpperCase();
+        //     var textB = b.title.toUpperCase();
+        //     return (textA < textB) ? -1 : (textA > textB) ? 1 : 0;
+
+        // });
 
 
 
-        res.status(201).send({ status: true, data: data })
-    } catch (err) {
+        // res.status(201).send({ status: true, data: data })
+
+
+        let id = req.query.userId
+        let Category = req.query.category
+        let subcategory = req.query.subcategory
+        if (id === undefined && Category === undefined && subcategory === undefined) {
+            let allBooks = await booksModel.find({ isDeleted: false })
+
+            if (allBooks.length == 0) { return res.status(404).send({ status: false, msg: " no books found" }) }
+            else { res.status(200).send({ status: true, data: allBooks }) }
+        }
+        else {
+            let booksWithFilter = await booksModel.find({ isDeleted: false, $or: [{ userId: id }, { category: Category }, { subcategory: subcategory }] }).select({ _id: 1, title: 1, excerpt: 1, userId: 1, category: 1, releasedAt: 1, reviews: 1 });
+            if (booksWithFilter.length == 0) {
+                res.status(404).send({ status: false, msg: "no book found" })
+            }
+            else {
+
+                booksWithFilter.sort(function (a, b) {
+                    var textA = a.title.toUpperCase();
+                    var textB = b.title.toUpperCase();
+                    return (textA < textB) ? -1 : (textA > textB) ? 1 : 0;
+
+                });
+
+                res.status(200).send({ status: true, data: booksWithFilter })
+            }
+        }
+    }
+
+
+    catch (err) {
         res.status(500).send({ status: false, msg: err.message });
     }
 }

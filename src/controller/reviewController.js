@@ -5,7 +5,7 @@ const { isValid } = require("../controller/userController");
 
 
 const createReview = async function (req, res) {
-    try {
+   try {
         const details = req.body;
         const bookId = req.params.bookId;
 
@@ -26,12 +26,11 @@ const createReview = async function (req, res) {
 
 
         //reviewedBy validation
-      if(reviewedBy)
-        if (reviewedAt === undefined || reviewedAt.trim().length === 0){ return res.status(400).send({ status: false, msg: "Reviewers name is required and it must be string" }) }
-
+        if(reviewedBy){
+        if (!isValid(reviewedBy)) { return res.status(400).send({ status: false, msg: "reviewedBy is required and it must be string" }) }
         let name = /^[a-zA-Z]{2,20}$/.test(reviewedBy.trim())
         if (!name) return res.status(400).send({ status: false, msg: "enter valid name" })
-        
+        }
 
         //reviewedAt validation
         if (reviewedAt === undefined || reviewedAt.trim().length === 0) return res.status(400).send({ status: false, msg: "date is required" })
@@ -66,7 +65,7 @@ const createReview = async function (req, res) {
         res.status(201).send({ status: true,msg :"books list", data: bookDetails })
     }
     catch (err) {
-        res.status(500).send({ status: false, msg: err.message });
+         res.status(500).send({ status: false, msg: err.message });
     }
 }
 
