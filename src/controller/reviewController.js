@@ -22,7 +22,7 @@ const createReview = async function (req, res) {
         const data = await reviewModel.create(details)
         bookDetails.reviews = bookDetails.reviews + 1;
          await booksModel.findOneAndUpdate({ _id: bookId }, { reviews: bookDetails.reviews }, { new: true })
-        res.status(200).send({ status: true, data: data })
+        res.status(201).send({ status: true, data: data })
     }
     catch (err) {
         res.status(500).send({ status: false, msg: err.message });
