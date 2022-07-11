@@ -46,21 +46,21 @@ const createBook = async function (req, res) {
         //category validation
         if (!isValid(category)) { return res.status(400).send({ status: false, msg: "category is required and it must be string" }) }
 
-        let bookCategory = /^[a-zA-Z ]{2,30}/.test(category.trim())
+        let bookCategory = /^[a-zA-Z\s]*$/.test(category.trim())
         if (!bookCategory) return res.status(400).send({ status: false, msg: "enter valid category " })
 
 
         //subcategory validation 
-        if (subcategory !== undefined && subcategory === "string") {
-            let bookSubcategory = /^[a-zA-Z ]{2,50}/.test(subcategory.trim())
-            if (!bookSubcategory) return res.status(400).send({ status: false, msg: "enter valid subcategory " })
+        if (subcategory !== undefined && typeof subcategory === "string") {
+            let bookSubcategory = /^[a-zA-Z\s]*$/.test(subcategory.trim())
+            if (!bookSubcategory) return res.status(400).send({ status: false, msg: "enter valid subcategory1 " })
         }
         else if (typeof subcategory !== "string" || subcategory.trim().length === 0) {
             if (Array.isArray(subcategory)) {
                 for (let i = 0; i < subcategory.length; i++) {
                     if (typeof subcategory[i] !== 'string') return res.status(400).send({ status: false, msg: " subcategory should be string" })
-                    let bookSubcategory = /^[a-zA-Z ]{2,50}/.test(subcategory[i].trim())
-                    if (!bookSubcategory) return res.status(400).send({ status: false, msg: "enter valid subcategory " })
+                    let bookSubcategory = /^[a-zA-Z\s]*$/.test(subcategory[i].trim())
+                    if (!bookSubcategory) return res.status(400).send({ status: false, msg: "enter valid subcategory2" })
 
                 }
 
@@ -70,7 +70,7 @@ const createBook = async function (req, res) {
 
         //releasedAt validation
         if (releasedAt === undefined || releasedAt.trim().length === 0) return res.status(400).send({ status: false, msg: "date is required" })
-        bookReleasedAt = /^\d{4}[\-\/\s]?((((0[13578])|(1[02]))[\-\/\s]?(([0-2][0-9])|(3[01])))|(((0[469])|(11))[\-\/\s]?(([0-2][0-9])|(30)))|(02[\-\/\s]?[0-2][0-9]))$/.test(releasedAt.trim())
+        bookReleasedAt =/^\d{4}[\-\/\s]?((((0[13578])|(1[02]))[\-\/\s]?(([0-2][0-9])|(3[01])))|(((0[469])|(11))[\-\/\s]?(([0-2][0-9])|(30)))|(02[\-\/\s]?[0-2][0-9]))$/.test(releasedAt.trim())
         if (!bookReleasedAt) return res.status(400).send({ status: false, msg: "enter valid date " })
 
 
@@ -89,11 +89,7 @@ const getBook = async function (req, res) {
             isDeleted: false,
             ...q
         };
-        // if(q.userId){
-        //     const validate = await userController.findById(q.userId);
-        //     if(!validate) return res.status(404).send({status:false, msg: "userId is not valid"});
-        // }
-
+        
         const data = await booksModel.find(filter).select({ _id: 1, title: 1, excerpt: 1, userId: 1, category: 1, releasedAt: 1, reviews: 1 });
         if (data.length == 0) return res.status(404).send({ status: false, msg: "No book is found" });
 
