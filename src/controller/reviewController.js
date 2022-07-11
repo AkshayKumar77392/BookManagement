@@ -22,11 +22,12 @@ const createReview = async function (req, res) {
         if (Object.keys(details).length < 1) { return res.status(400).send({ msg: "Insert data :Bad request" }) }
 
         //reviewedBy validation
+        if(reviewedBy){
         if (!isValid(reviewedBy)) { return res.status(400).send({ status: false, msg: "Reviewers name is required and it must be string" }) }
 
         let name = /^[a-zA-Z]{2,20}$/.test(reviewedBy.trim())
         if (!name) return res.status(400).send({ status: false, msg: "enter valid name" })
-
+        }
 
         //reviewedAt validation
         if (reviewedAt === undefined || reviewedAt.trim().length === 0) return res.status(400).send({ status: false, msg: "date is required" })
@@ -35,30 +36,30 @@ const createReview = async function (req, res) {
 
 
         //rating validation
-        // if (rating === undefined || rating.trim().length === 0) return res.status(400).send({ status: false, msg: "date is required" })
-        // bookrating =/^[1-5]$/.test(rating.trim())
-        // if (!bookrating) return res.status(400).send({ status: false, msg: "enter valid rating" })
+        if (rating === undefined) return res.status(400).send({ status: false, msg: "rating is required" })
+        let bookrating = /^[1-5]\d*(\.\d+)?$/.test(rating)
+        if (!bookrating) return res.status(400).send({ status: false, msg: "enter valid rating" })
 
         //reviews validation
+        if(reviews){
         if (!isValid(reviews)) { return res.status(400).send({ status: false, msg: "reviews is required and it must be string" }) }
 
         let bookreviews = /\w*\s*|\w|\D/.test(reviews.trim())
         if (!bookreviews) return res.status(400).send({ status: false, msg: "enter valid review" })
-
+        }
 
 
         const data = await reviewModel.create(details)
         bookDetails.reviews = bookDetails.reviews + 1;
-        let reviewsData=data
-        bookDetails.reviewsData=reviewsData
-    console.log(bookDetails)
-        let book=bookDetails
-
+      
         await booksModel.findOneAndUpdate({ _id: bookId }, { reviews: bookDetails.reviews, }, { new: true })
 
-        console.log(bookDetails.reviewsData)
+        
+        let book=bookDetails._doc
+        bookDetails = { ...book, reviewsData: data};
+        
 
-        res.status(201).send({ status: true,msg :"books list", data: book })
+        res.status(201).send({ status: true,msg :"books list", data: bookDetails })
     }
     catch (err) {
         res.status(500).send({ status: false, msg: err.message });
