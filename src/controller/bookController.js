@@ -102,7 +102,17 @@ const getBookByQuery = async function (req, res) {
             let allBooks = await booksModel.find({ isDeleted: false })
 
             if (allBooks.length == 0) { return res.status(404).send({ status: false, msg: " no books found" }) }
-            else { res.status(200).send({ status: true, data: allBooks }) }
+            else{
+
+                
+              allBooks.sort(function (a, b) {
+                    var textA = a.title.toUpperCase();
+                    var textB = b.title.toUpperCase();
+                    return (textA < textB) ? -1 : (textA > textB) ? 1 : 0;
+
+                });
+
+                 res.status(200).send({ status: true, data: allBooks }) }
         }
         else {
             let booksWithFilter = await booksModel.find({ isDeleted: false, $or: [{ userId: id }, { category: Category }, { subcategory: subcategory }] }).select({ _id: 1, title: 1, excerpt: 1, userId: 1, category: 1, releasedAt: 1, reviews: 1 });
@@ -118,7 +128,7 @@ const getBookByQuery = async function (req, res) {
 
                 });
 
-                res.status(200).send({ status: true, data: bookDetails })
+                res.status(200).send({ status: true, data: booksWithFilter })
             }
         }
     }
