@@ -20,10 +20,6 @@ const createReview = async function (req, res) {
 
         let { reviewedBy, reviewedAt, rating, reviews } = details;
 
-        //validation for empty body
-        // if (Object.keys(details).length < 1) { return res.status(400).send({ msg: "Insert data :Bad request" }) }
-
-
 
         //reviewedBy validation
         if(reviewedBy){
