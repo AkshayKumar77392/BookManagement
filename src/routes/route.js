@@ -15,7 +15,7 @@ router.get("/books", authenticate, getBookByQuery)
 router.get("/books/:bookId", authenticate, getBookById)
 router.delete("/books/:bookId", authenticate,authorise, deleteBook)
 //review Api
-router.post("/books/:bookId", createReview)
+router.post("/books/:bookId/review", createReview)
 router.delete("/books/:bookId/review/:reviewId", deleteReview)
 router.put("/books/:bookId/review/:reviewId",updateReview)
 

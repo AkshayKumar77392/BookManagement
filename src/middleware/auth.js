@@ -5,7 +5,7 @@ const mongoose = require("mongoose")
     const authenticate = function (req, res, next) {
         try {
             let token = req.headers["x-api-key"];
-            if (!token) return res.status(400).send({ status: false, msg: "token must be present" });
+            if (!token) return res.status(401).send({ status: false, msg: "token must be present" });
              decodedToken = jwt.verify(token, "book-management", 
             
             function(err){

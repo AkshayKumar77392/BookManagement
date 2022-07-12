@@ -32,7 +32,7 @@ const bookSchema = new mongoose.Schema(
         }],
         reviews: {
             type: Number,
-            default: 0,
+            default: 0
         },
 
         deletedAt: {
