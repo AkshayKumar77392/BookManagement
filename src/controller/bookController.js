@@ -3,7 +3,8 @@ const userModel = require("../model/userModel");
 const { isValid } = require("../controller/userController");
 const moment = require("moment");
 const mongoose = require("mongoose");
-const jwt = require('jsonwebtoken')
+const jwt = require('jsonwebtoken');
+const reviewModel = require("../model/reviewModel");
 
 
 const createBook = async function (req, res) {
@@ -50,7 +51,7 @@ const createBook = async function (req, res) {
         let bookISBN = /^(?=(?:\D*\d){10}(?:(?:\D*\d){3})?$)[\d-]+$/.test(ISBN.trim())
         if (!bookISBN) return res.status(400).send({ status: false, msg: "enter valid ISBN" })
         let findISBN = await booksModel.find({ ISBN: ISBN })
-        if (findISBN.length !== 0) return res.status(400).send({ status: false, msg: "ISBN  is already used, Please use a new title" })
+        if (findISBN.length !== 0) return res.status(400).send({ status: false, msg: "ISBN  is already used, Please use a new ISBN" })
 
         //category validation
         if (!isValid(category)) { return res.status(400).send({ status: false, msg: "category is required and it must be string" }) }
@@ -91,28 +92,8 @@ const createBook = async function (req, res) {
         res.status(500).send({ status: false, msg: err.message });
     }
 }
-const getBook = async function (req, res) {
+const getBookByQuery = async function (req, res) {
     try {
-        // let q = req.query;
-        // let filter = {
-        //     isDeleted: false,
-        //     ...q
-        // };
-
-        // const data = await booksModel.find(filter).select({ _id: 1, title: 1, excerpt: 1, userId: 1, category: 1, releasedAt: 1, reviews: 1 });
-        // if (data.length == 0) return res.status(404).send({ status: false, msg: "No book is found" });
-
-        // data.sort(function (a, b) {
-        //     var textA = a.title.toUpperCase();
-        //     var textB = b.title.toUpperCase();
-        //     return (textA < textB) ? -1 : (textA > textB) ? 1 : 0;
-
-        // });
-
-
-
-        // res.status(201).send({ status: true, data: data })
-
 
         let id = req.query.userId
         let Category = req.query.category
@@ -137,7 +118,7 @@ const getBook = async function (req, res) {
 
                 });
 
-                res.status(200).send({ status: true, data: booksWithFilter })
+                res.status(200).send({ status: true, data: bookDetails })
             }
         }
     }
@@ -153,29 +134,60 @@ const updateBook = async function (req, res) {
     try {
         let id = req.params.bookId;
         let data = req.body;
+
+        let { title, excerpt, ISBN, releasedAt } = data
+        let reviewKeys = ["title", "excerpt", "ISBN", "releasedAt"]
+        for (let i = 0; i < Object.keys(req.body).length; i++) {
+            let keyPresent = reviewKeys.includes(Object.keys(req.body)[i])
+            if (!keyPresent)
+                return res.status(400).send({ status: false, msg: "Wrong Key present" })
+        }
+
         if (Object.keys(data).length < 1) { return res.status(400).send({ msg: "Insert data you want to update" }) }
 
         let book = await booksModel.findOne({ _id: id, isDeleted: false });
-        if (book === null) {
-            return res.status(404).send({ status: false, msg: 'No such book found' });
+
+        if (title) {
+
+            if (!isValid(title)) { return res.status(400).send({ status: false, msg: "title is required and it must be string" }) }
+
+            let bookTitle = /\w*\s*|\w|\D/.test(title.trim())
+            if (!bookTitle) return res.status(400).send({ status: false, msg: "enter valid title" })
+            let findTitle = await booksModel.find({ title: title })
+            if (findTitle.length !== 0) return res.status(400).send({ status: false, msg: "Title  is already used, Please use a new title" })
+
+            book.title = title
+        };
+
+        if (releasedAt) {
+
+            if (releasedAt === undefined || releasedAt.trim().length === 0) return res.status(400).send({ status: false, msg: "date is required" })
+            bookReleasedAt = /^\d{4}[\-\/\s]?((((0[13578])|(1[02]))[\-\/\s]?(([0-2][0-9])|(3[01])))|(((0[469])|(11))[\-\/\s]?(([0-2][0-9])|(30)))|(02[\-\/\s]?[0-2][0-9]))$/.test(releasedAt.trim())
+            if (!bookReleasedAt) return res.status(400).send({ status: false, msg: "enter valid date " })
+
+            book.releasedAt = releasedAt
+        };
+
+        if (ISBN) {
+
+            if (!isValid(ISBN)) { return res.status(400).send({ status: false, msg: "ISBN is required and it must be string" }) }
+
+            let bookISBN = /^(?=(?:\D*\d){10}(?:(?:\D*\d){3})?$)[\d-]+$/.test(ISBN.trim())
+            if (!bookISBN) return res.status(400).send({ status: false, msg: "enter valid ISBN" })
+            let findISBN = await booksModel.find({ ISBN: ISBN })
+            if (findISBN.length !== 0) return res.status(400).send({ status: false, msg: "ISBN  is already used, Please use a new ISBN" })
+
+            book.ISBN = ISBN
+        };
+
+        if (excerpt) {
+            if (!isValid(excerpt)) { return res.status(400).send({ status: false, msg: "excerpt is required and it must be string" }) }
+
+            let bookExcerpt = /\w*\s*|\w|\D/.test(excerpt.trim())
+            if (!bookExcerpt) return res.status(400).send({ status: false, msg: "enter valid excerpt" })
+
+            book.excerpt=excerpt
         }
-        let findTitle = await booksModel.find({ title: data.title })
-        if (findTitle.length !== 0) return res.status(400).send({ status: false, msg: "Title  is already used, Please use a new title" })
-
-        let givenISBN = /^(?=(?:\D*\d){10}(?:(?:\D*\d){3})?$)[\d-]+$/.test(data.ISBN.trim())
-        if (!givenISBN) return res.status(400).send({ status: false, msg: "enter valid ISBN" })
-
-        let findISBN = await booksModel.find({ ISBN: data.ISBN })
-        if (findISBN.length != 0) return res.status(400).send({ status: false, msg: "ISBN is already used" })
-        if (data.title) {
-            book.title = data.title
-        };
-        if (data.releasedAt) {
-            book.releasedAt = data.releasedAt
-        };
-        if (data.ISBN) {
-            book.ISBN = data.ISBN
-        };
 
         let updateData = await booksModel.findByIdAndUpdate({ _id: id }, book, {
             new: true,
@@ -192,14 +204,25 @@ const updateBook = async function (req, res) {
 
 
 //get by id
-const getBooks = async function (req, res) {
+const getBookById = async function (req, res) {
     try {
         let bookId = req.params.bookId;
 
-        let saveData = await booksModel.findById({ _id: bookId, isDeleted: false })
+        var isValidId = mongoose.Types.ObjectId.isValid(bookId)
+        if (!isValidId) return res.status(400).send({ status: false, msg: "Enter valid book id" })
+
+        let saveData = await booksModel.findById({ _id: bookId, isDeleted: false }).select({ __v: 0, deletedAt: 0 })
         if (!saveData) { return res.status(404).send({ status: false, msg: "book not found" }) }
 
-        res.status(200).send({ ststus: true, data: saveData })
+
+        let data = await reviewModel.find({ bookId: bookId }).select({ isDeleted: 0, __v: 0 })
+
+
+        let book = saveData._doc
+        bookDetails = { ...book, reviewsData: data };
+
+
+        res.status(200).send({ ststus: true, data: bookDetails })
     } catch (err) {
         res.status(500).send({ msg: 'Error', error: err.message });
     }
@@ -227,5 +250,5 @@ const deleteBook = async function (req, res) {
 
 }
 
-module.exports = { createBook, updateBook, getBook, getBooks, deleteBook }
+module.exports = { createBook, updateBook, getBookByQuery, getBookById, deleteBook }
 

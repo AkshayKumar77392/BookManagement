@@ -14,7 +14,7 @@ const createReview = async function (req, res) {
         if (!bookId) return res.status(400).send({ status: false, msg: "bookId is required" })
 
         var isValidId = mongoose.Types.ObjectId.isValid(bookId)
-        if (!isValidId) return res.status(400).send({ status: false, msg: "Enter valid user id" })
+        if (!isValidId) return res.status(400).send({ status: false, msg: "Enter valid book id" })
         let bookDetails = await booksModel.findOne({ _id: bookId, isDeleted: false });
         if (!bookDetails) { res.status(400).send({ status: false, msg: "The book with the given user id doesn't exist" }) };
 
@@ -120,7 +120,7 @@ const updateReview = async (req, res) => {
         }
 
         if (Object.keys(dataToUpdate).includes("review")) {
-            if (!validate.isValid(review)) {
+            if (!isValid(review)) {
                 return res.status(400).send({ status: false, message: "Please Enter A Valid Review" })
             }
             updateQuery.review = review
@@ -132,7 +132,6 @@ const updateReview = async (req, res) => {
 
          let finalReview = { ...updatedReview.toObject() }
          delete finalReview.isDeleted
-        // delete finalReview.updatedAt
          delete finalReview.__v
         return res.status(200).send({ status: true, message: "Success", Data: { ...isBook.toObject(), reviewsData: [finalReview] } })
 
