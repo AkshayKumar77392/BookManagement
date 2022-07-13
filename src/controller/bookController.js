@@ -5,13 +5,6 @@ const mongoose = require("mongoose");
 const jwt = require('jsonwebtoken');
 const reviewModel = require("../model/reviewModel");
 
-const isValidSubcategory = function (value) {
-    if (typeof value === "undefined" || !value ) return false
-    if (typeof value === "string" || value.trim().length === 0) return false
-    return true
-}
-
-
 const createBook = async function (req, res) {
     try {
         const details = req.body;
