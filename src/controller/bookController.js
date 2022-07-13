@@ -245,14 +245,15 @@ const getBookById = async function (req, res) {
 const deleteBook = async function (req, res) {
     try {
         let bookId = req.params.bookId
-        let id = await booksModel.findById({ _id: bookId, isDeleted: false })
+        let id = await booksModel.findById({_id: bookId})
         if (id) {
+            if(id.isDeleted){ return res.status(404).send({ message: "book not found" }) }
             let updateBook = await booksModel.findOneAndUpdate({ _id: bookId }, { isDeleted: true,deletedAt:Date.now()}, { new: true })
             updateBook.deletedAt = Date.now()
 
             res.status(200).send({ status: true, message: "book deleted now", deletedAt: updateBook.deletedAt })
         }
-        else { res.status(404).send({ message: "book not found" }) }
+        else { return res.status(404).send({ message: "book not found" }) }
     }
     catch (err) {
         console.log("This is the error :", err.message)
