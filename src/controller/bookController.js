@@ -247,7 +247,7 @@ const deleteBook = async function (req, res) {
         let bookId = req.params.bookId
         let id = await booksModel.findById({ _id: bookId, isDeleted: false })
         if (id) {
-            let updateBook = await booksModel.findOneAndUpdate({ _id: bookId }, { isDeleted: true }, { new: true })
+            let updateBook = await booksModel.findOneAndUpdate({ _id: bookId }, { isDeleted: true,deletedAt:Date.now()}, { new: true })
             updateBook.deletedAt = Date.now()
             res.status(200).send({ status: true, message: "book deleted now", deletedAt: updateBook.deletedAt })
         }
