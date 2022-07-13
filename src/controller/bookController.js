@@ -5,6 +5,12 @@ const mongoose = require("mongoose");
 const jwt = require('jsonwebtoken');
 const reviewModel = require("../model/reviewModel");
 
+const isValidSubcategory = function (value) {
+    if (typeof value === "undefined" || !value ) return false
+    if (typeof value === "string" || value.trim().length === 0) return false
+    return true
+}
+
 
 const createBook = async function (req, res) {
     try {
@@ -60,20 +66,24 @@ const createBook = async function (req, res) {
 
 
         //subcategory validation 
-        if (subcategory !== undefined && typeof subcategory === "string") {
+        if (!subcategory||typeof subcategory === "undefined" ){ return res.status(400).send({ status: false, message: "subcategory is required" }) }
+        if (typeof subcategory === "string") {
+            if(subcategory.trim().length === 0){return res.status(400).send({ status: false, message: "only spaces are not accepted " })}
             let bookSubcategory = /^[a-zA-Z\s]*$/.test(subcategory.trim())
             if (!bookSubcategory) return res.status(400).send({ status: false, message: "enter valid subcategory1 " })
-        }else if (typeof subcategory !== "string" || subcategory.trim().length === 0) {
-            if (Array.isArray(subcategory)) {
+        }else if (Array.isArray(subcategory)) {
+                if(subcategory.length==0){return res.status(400).send({ status: false, message: "empty array is not accepted " })}
                 for (let i = 0; i < subcategory.length; i++) {
-                    if (typeof subcategory[i] !== 'string') return res.status(400).send({ status: false, message: " subcategory should be string" })
+                    if (!subcategory[i]||typeof subcategory[i] !== 'string'||subcategory[i].trim().length === 0) return res.status(400).send({ status: false, message: " subcategory should be string" })
                     let bookSubcategory = /^[a-zA-Z\s]*$/.test(subcategory[i].trim())
-                    if (!bookSubcategory) return res.status(400).send({ status: false, message: "enter valid subcategory2" })
+                    if (!bookSubcategory) return res.status(400).send({ status: false, message: "enter valid subcategory" })
 
                 }
 
             } else { return res.status(400).send({ status: false, message: "subcategory should contain string values" }) }
-        }
+        
+        
+
 
 
         //releasedAt validation
