@@ -52,6 +52,7 @@ const createUser = async function (req, res) {
        
        
         if (data.hasOwnProperty("address")) {
+            
             // street validation
             let street = address.street
             if (!isValid(street)) { return res.status(400).send({ status: false, message: "street is required and it must be string" }) }
@@ -97,12 +98,12 @@ const loginUser = async function (req, res) {
         if (!userName) return res.status(400).send({ status: false, message: "user Name is required" });
         if (!password) return res.status(400).send({ status: false, message: "password is required" });
         const check = await userModel.findOne({ email: userName, password: password });
-        if (!check) return res.status(400).send({ status: false, message: "userName or password is wrong" });
+        if (!check) return res.status(401).send({ status: false, message: "userName or password is wrong" });
         let token = JWT.sign(
             {
                 userId: check._id.toString(),
                 iat: Math.floor(new Date() / 1000),
-                exp: Math.floor(new Date() / 1000) + 10*60*60
+                exp: Math.floor(new Date() / 1000) +10*60*60 
             },
             "book-management"
         );
