@@ -13,7 +13,7 @@ router.post("/books", authenticate, createBook)
 router.put("/books/:bookId", authenticate, authorise, updateBook)
 router.get("/books", authenticate, getBookByQuery)
 router.get("/books/:bookId", authenticate, getBookById)
-router.delete("/books/:bookId", authenticate,authorise, deleteBook)
+router.delete("/books/:bookId", deleteBook)
 //review Api
 router.post("/books/:bookId/review", createReview)
 router.delete("/books/:bookId/review/:reviewId", deleteReview)

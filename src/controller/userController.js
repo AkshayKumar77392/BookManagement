@@ -102,7 +102,7 @@ const loginUser = async function (req, res) {
             {
                 userId: check._id.toString(),
                 iat: Math.floor(new Date() / 1000),
-                exp: Math.floor(new Date() / 1000) + 10 * 60 * 60
+                exp: Math.floor(new Date() / 1000) + 10*60*60
             },
             "book-management"
         );

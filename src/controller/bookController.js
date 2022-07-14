@@ -232,7 +232,7 @@ const getBookById = async function (req, res) {
         bookDetails = { ...book, reviewsData: data };
 
 
-        res.status(200).send({ ststus: true, message:"Success",data: bookDetails })
+        res.status(200).send({ status: true, message:"Success",data: bookDetails })
     } catch (err) {
         res.status(500).send({ message: 'Error', error: err.message });
     }
@@ -246,7 +246,7 @@ const deleteBook = async function (req, res) {
     try {
         let bookId = req.params.bookId
         let id = await booksModel.findById({ _id: bookId, isDeleted: false })
-        if (id) {
+        if (id.length!=null) {
             let updateBook = await booksModel.findOneAndUpdate({ _id: bookId }, { isDeleted: true }, { new: true })
             updateBook.deletedAt = Date.now()
             res.status(200).send({ status: true, message: "book deleted now", deletedAt: updateBook.deletedAt })
