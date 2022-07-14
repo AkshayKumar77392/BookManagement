@@ -8,6 +8,9 @@ const bookSchema = new mongoose.Schema(
             required: true,
             unique: true
         },
+        files:{
+            type: String
+        },
         excerpt: {
             type: String,
             required: true

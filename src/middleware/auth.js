@@ -32,7 +32,7 @@ const authorise = async function (req, res, next) {
 
     let decodedToken = jwt.verify(token, "book-management")
 
-    if (!decodedToken) return res.send({ status: false, msg: "token is not valid" })
+    if (!decodedToken) return res.status(401).send({ status: false, msg: "token is not valid" })
     bookToBeModified = req.params.bookId
     var isValid = mongoose.Types.ObjectId.isValid(bookToBeModified)
     if (!isValid) return res.status(400).send({ status: false, msg: "enter valid id" })
